@@ -97,6 +97,13 @@ public class MongoDbUpdate extends BaseStep implements StepInterface
 		for (int i=0;i<data.fieldNumber;i++)
 		{
 			String fieldvalue=getInputRowMeta().getString(row,data.fieldIndexes[i]);
+			switch (meta.getTrimType())
+			{
+				case 0: break;
+				case 1: fieldvalue = Const.ltrim(fieldvalue); break;
+				case 2: fieldvalue = Const.rtrim(fieldvalue);break;
+				case 3: fieldvalue = Const.trim(fieldvalue);break;
+			}
 			if (meta.getKeyFieldFlags()[i])
 			{
 				queryObj.put(firstPrefix+meta.getJSONNames()[i],fieldvalue);

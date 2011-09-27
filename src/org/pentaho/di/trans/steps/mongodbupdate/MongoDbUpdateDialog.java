@@ -92,6 +92,7 @@ public class MongoDbUpdateDialog extends BaseStepDialog implements StepDialogInt
 	private TableView wFields;
 	private TextVar wAuthUser;
 	private TextVar wAuthPass;
+	private CCombo wTrimType;
 
 	private CTabFolder   wTabFolder;
 	private FormData     fdTabFolder;
@@ -392,6 +393,28 @@ public class MongoDbUpdateDialog extends BaseStepDialog implements StepDialogInt
 		wInsert.setLayoutData(fdInsert);
 		lastControl = wInsert;
 
+		Label wlTrimType = new Label(wStructureComp, SWT.RIGHT);
+		wlTrimType.setText(BaseMessages.getString(PKG, "MongoDbUpdateDialog.TrimType.Label")); //$NON-NLS-1$
+ 		props.setLook(wlTrimType);
+		FormData fdlTrim = new FormData();
+		fdlTrim.left = new FormAttachment(0, 0);
+		fdlTrim.right= new FormAttachment(middle, -margin);
+		fdlTrim.top  = new FormAttachment(lastControl, margin);
+		wlTrimType.setLayoutData(fdlTrim);
+
+		wTrimType = new CCombo(wStructureComp,SWT.BORDER | SWT.READ_ONLY);
+		wTrimType.setToolTipText(BaseMessages.getString(PKG,"MongoDbUpdateDialog.TrimType.Tooltip")); //$NON-NLS-1$
+		wTrimType.setEditable(true);
+		wTrimType.setItems(MongoDbUpdateMeta.TrimTypes);
+		wTrimType.addModifyListener(lsMod);
+ 		props.setLook(wTrimType);
+		FormData fdTrimType = new FormData();
+		fdTrimType.left = new FormAttachment(middle, 0);
+		fdTrimType.top  = new FormAttachment(lastControl, margin);
+		fdTrimType.right= new FormAttachment(100, 0);
+		wTrimType.setLayoutData(fdTrimType);
+		lastControl = wTrimType;
+
 		FormData fdStructureComp = new FormData();
 		fdStructureComp.left = new FormAttachment(0,0);
 		fdStructureComp.top = new FormAttachment(0,0);
@@ -580,6 +603,7 @@ public class MongoDbUpdateDialog extends BaseStepDialog implements StepDialogInt
 		wContainerObject.setText(Const.NVL(input.getContainerObjectName(),"")); //$NON-NLS-1$
 		wArray.setSelection(input.getArrayFlag());
 		wInsert.setSelection(input.getInsertIfNotPresentFlag());
+		wTrimType.select(input.getTrimType());
 		for (int k=0;k<input.getFieldNames().length;k++)
 		{
 			TableItem item = wFields.table.getItem(k);
@@ -611,6 +635,9 @@ public class MongoDbUpdateDialog extends BaseStepDialog implements StepDialogInt
 	    meta.setContinerObjectName(Const.NVL(wContainerObject.getText(),""));
 	    meta.setArrayFlag(wArray.getSelection());
 	    meta.setInsertIfNotPresentFlag(wInsert.getSelection());
+	    int intTrim = wTrimType.getSelectionIndex();
+	    if ((intTrim<0)||(intTrim>=MongoDbUpdateMeta.TrimTypes.length)) intTrim=0;
+	    meta.setTrimType(intTrim);
 	    
 	    int nrRow = wFields.nrNonEmpty();
 	    String[] fNames = new String[nrRow];

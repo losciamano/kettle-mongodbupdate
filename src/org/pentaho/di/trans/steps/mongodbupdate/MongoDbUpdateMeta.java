@@ -49,6 +49,13 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 {
 	private static Class<?> PKG = MongoDbUpdateMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
 
+	public static final String[] TrimTypes= {
+		BaseMessages.getString(PKG,"MongoDbUpdateMeta.Trim.None"),
+		BaseMessages.getString(PKG,"MongoDbUpdateMeta.Trim.Left"),
+		BaseMessages.getString(PKG,"MongoDbUpdateMeta.Trim.Right"),
+		BaseMessages.getString(PKG,"MongoDbUpdateMeta.Trim.Full"),
+	};
+
 	private String hostname;
 	private String port;
 	private String dbName;
@@ -62,6 +69,7 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 	private String authenticationUser;
 	private String authenticationPassword;
 	private boolean insertIfNotPresent;
+	private int trimType;
 
 
 	public MongoDbUpdateMeta()
@@ -96,6 +104,7 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 			containerObject = XMLHandler.getTagValue(stepnode,"container_object");//$NON-NLS-1$
 			authenticationUser = XMLHandler.getTagValue(stepnode,"auth_user"); //$NON-NLS-1$
 			authenticationPassword = Encr.decryptPasswordOptionallyEncrypted(XMLHandler.getTagValue(stepnode,"auth_password"));//$NON-NLS-1$
+			trimType = Const.toInt(XMLHandler.getTagValue(stepnode,"trim_type"),0);//$NON-NLS-1$
 			Node fields = XMLHandler.getSubNode(stepnode,"fields");
 			int numFields = XMLHandler.countNodes(fields,"field");
 			allocate(numFields);
@@ -130,6 +139,7 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 		authenticationUser="";//$NON-NLS-1$
 		authenticationPassword="";//$NON-NLS-1$
 		insertIfNotPresent=false;//$NON-NLS-1$
+		trimType=0;//$NON-NLS-1$
 		allocate(0);
 	}
 	
@@ -144,6 +154,7 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 		retval.append("    ").append(XMLHandler.addTagValue("insert_flag",insertIfNotPresent)); //$NON-NLS-1$ //$NON-NLS-2$
 		retval.append("    ").append(XMLHandler.addTagValue("primary_query",primaryQuery));
 		retval.append("    ").append(XMLHandler.addTagValue("container_object",containerObject));
+		retval.append("    ").append(XMLHandler.addTagValue("trim_type",trimType));
 	        retval.append("     <fields>" + Const.CR);
 	        for (int i = 0; i < fieldNames.length; i++)
 	        {
@@ -175,6 +186,8 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 			arrayFlag = rep.getStepAttributeBoolean(id_step,"array_flag");//$NON-NLS-1$
 			insertIfNotPresent = rep.getStepAttributeBoolean(id_step,"insert_flag");//$NON-NLS-1$
 			containerObject = rep.getStepAttributeString(id_step,"container_object");//$NON-NLS-1$
+			trimType = (int)rep.getStepAttributeInteger(id_step,"trim_type");//$NON-NLS-1$
+
 			int fNum = rep.countNrStepAttributes(id_step,"field_name");
 			allocate(fNum);
 			for (int k=0;k<fNum;k++)
@@ -206,6 +219,7 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
 			rep.saveStepAttribute(id_transformation,id_step,"container_object",containerObject);
 			rep.saveStepAttribute(id_transformation,id_step,"array_flag",arrayFlag);
 			rep.saveStepAttribute(id_transformation,id_step,"insert_flag",insertIfNotPresent);
+			rep.saveStepAttribute(id_transformation,id_step,"trim_type",trimType);
 			for ( int k = 0; k < fieldNames.length; k++)
 			{
 				rep.saveStepAttribute(id_transformation,id_step,k,"field_name",fieldNames[k]);
@@ -417,5 +431,21 @@ public class MongoDbUpdateMeta extends BaseStepMeta implements StepMetaInterface
   public void setInsertIfNotPresentFlag( boolean flag)
   {
   	this.insertIfNotPresent=flag;
+  }
+
+  /**
+  *	@return trim type
+  **/
+  public int getTrimType()
+  {
+  	return trimType;  
+  }
+
+  /**
+  *	@param type trim type
+  **/
+  public void setTrimType(int type)
+  {
+  	this.trimType=type;
   }
 }
